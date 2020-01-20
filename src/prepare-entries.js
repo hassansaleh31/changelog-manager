@@ -73,8 +73,6 @@ const parseReleases = async () => {
                         addChanges(null, true)
                         await unreleaseVersion(path.join(pathToEntries, entry), pathToEntries)
                         return await parseReleases()
-                    } else {
-                        process.exit(1)
                     }
                 }
                 if (!entryData.version || !entryData.version.match(/\d{1,}\.\d{1,}\.\d{1,}/)) {
