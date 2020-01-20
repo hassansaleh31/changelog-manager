@@ -41,7 +41,7 @@ export const releaseChangelog = async (options) => {
     options = await promptForMissingOptions(options);
     const branchName = await getBranchName()
     console.info(`Releasing changelog for version ${options.version} for ${branchName}`)
-    const parsedReleases = await prepareRelease()
+    const parsedReleases = await prepareRelease(options)
 
     console.info('Checking for unreleased entries')
     if (!parsedReleases.unreleased || Object.keys(parsedReleases.unreleased).length == 0) {

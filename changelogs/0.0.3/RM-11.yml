@@ -1,0 +1,5 @@
+title: Added the ability to generate a CHANGELOG.md file
+author: ""
+issue: 11
+type: added
+release-branch: release-changelog-manager
