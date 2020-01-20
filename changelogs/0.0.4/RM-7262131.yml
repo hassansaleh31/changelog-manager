@@ -1,0 +1,5 @@
+title: Fixed a bug with release dates being ISO strings
+author: ""
+issue: 7262131
+type: fixed
+release-branch: release-changelog-manager

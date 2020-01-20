@@ -8,12 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - No changes yet
 
-## 0.0.3 - 2020-01-20T15:26:54.195Z
+## 0.0.4 - 2020-01-20
+
+### Fixed
+- Fixed a bug with release dates being iso strings
+- Fixed a bug where author feild in entries was not being populated
+
+## 0.0.3 - 2020-01-20
 
 ### Added
 - Added the ability to generate a changelog.md file
 
-## 0.0.1 - 2020-01-20T13:46:15.791Z
+## 0.0.1 - 2020-01-20
 
 ### Added
 - Added the ability to generate new entries

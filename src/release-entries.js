@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import YAML from 'yaml'
-import { getBranchName } from './utils/git-utils'
+import { getBranchName, getUsername } from './utils/git-utils'
 import { prepareRelease } from './prepare-entries'
 import inquirer from 'inquirer'
 import { compareVersions } from './utils/versions'
@@ -40,6 +40,7 @@ const promptForMissingOptions = async (options) => {
 export const releaseChangelog = async (options) => {
     options = await promptForMissingOptions(options);
     const branchName = await getBranchName()
+    const author = await getUsername()
     console.info(`Releasing changelog for version ${options.version} for ${branchName}`)
     const parsedReleases = await prepareRelease(options)
 
@@ -79,9 +80,8 @@ export const releaseChangelog = async (options) => {
     console.info('Generating release info')
     const releaseInfo = {
         version: options.version,
-        // TODO: get git username
-        author: '',
-        date: new Date(),
+        author: author,
+        date: new Date().toISOString().split('T').shift(),
         'release-branch': branchName
     }
     fs.writeFileSync(path.join(pathToRelease, `${branchName}-${options.version}-info.yml`), YAML.stringify(releaseInfo))
@@ -116,7 +116,7 @@ const releaseChanges = (unreleased, version, branchName) => {
                 'release-branch': branchName
             }))
 
-            // TODO: Delete file
+            // Delete file
             fs.unlinkSync(entry.originalPath)
         }
     }

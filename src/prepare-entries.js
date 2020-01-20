@@ -53,7 +53,7 @@ const parseReleases = async (options) => {
             entryData.originalPath = path.join(pathToEntries, entry)
 
             if (entry.match(/^release-[\D-\d]*-info\.yml/)) {
-                // TODO: validate release info data
+                // Validate release info data
                 if (entryData['release-branch'] != branchName && !options.dryRun) {
                     console.info(`The version ${entryData['version']} was released on a different release branch`)
                     const answer = await inquirer.prompt([
@@ -73,6 +73,8 @@ const parseReleases = async (options) => {
                         addChanges(null, true)
                         await unreleaseVersion(path.join(pathToEntries, entry), pathToEntries)
                         return await parseReleases()
+                    } else {
+                        // TODO: Ask the user to change the release-branch to current branch
                     }
                 }
                 if (!entryData.version || !entryData.version.match(/\d{1,}\.\d{1,}\.\d{1,}/)) {
@@ -81,7 +83,7 @@ const parseReleases = async (options) => {
                 }
                 releaseInfo = entryData
             } else {
-                // TODO: validate entry data
+                // Validate entry data
                 if (!entryData.type || !entryData.title) {
                     console.error(`Invalid entry (${entry}): missing title or type`)
                     process.exit(1)

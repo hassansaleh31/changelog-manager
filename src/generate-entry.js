@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import YAML from 'yaml'
 import inquirer from 'inquirer'
+import { getUsername } from './utils/git-utils'
 
 const TYPES = [
     { value: 'added', name: 'New feature' },
@@ -74,10 +75,11 @@ async function promptForMissingOptions(options) {
 
 export const generateEntry = async (options) => {
     options = await promptForMissingOptions(options);
+    const author = await getUsername()
 
     const entryData = YAML.stringify({
         title: options.title,
-        author: '',
+        author: author,
         issue: options.issue,
         type: options.type
     })

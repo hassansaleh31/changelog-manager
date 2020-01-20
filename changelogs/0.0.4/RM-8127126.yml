@@ -1,0 +1,5 @@
+title: Fixed a bug where author feild in entries was not being populated
+author: Hassan Saleh
+issue: 8127126
+type: fixed
+release-branch: release-changelog-manager

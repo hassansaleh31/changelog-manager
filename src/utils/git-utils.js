@@ -13,6 +13,12 @@ export const getBranchName = async () => {
     throw 'Failed to fetch branch name from git'
 }
 
+export const getUsername = async () => {
+    const { stdout } = await execa('git', ['config', 'user.name'])
+
+    return stdout.split('\n').shift()
+}
+
 export const checkoutBranch = async (branchName, createNew = false) => {
     if (createNew) {
         await execa('git', ['checkout', '-b', branchName])
