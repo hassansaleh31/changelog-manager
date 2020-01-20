@@ -1,0 +1,5 @@
+title: Added the ability to release unreleased changelog entries
+author: ""
+issue: 11
+type: added
+release-branch: release-changelog-manager

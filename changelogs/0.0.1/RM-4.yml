@@ -2,3 +2,4 @@ title: Added the ability to prepare and validate entries for a new release
 author: ""
 issue: 4
 type: added
+release-branch: release-changelog-manager
