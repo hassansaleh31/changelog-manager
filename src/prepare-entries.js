@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import YAML from 'yaml'
-import { getBranchName } from './utils/git-utils'
+import { getBranchName, addChanges } from './utils/git-utils'
 import { generateEntry } from './generate-entry'
 import inquirer from 'inquirer'
 
@@ -13,7 +13,7 @@ const promptForMissingOptions = async (options) => {
 export const prepareRelease = async (options) => {
     options = await promptForMissingOptions(options);
     const parsedReleases = await parseReleases()
-    console.log(parsedReleases)
+    return parsedReleases
 }
 
 /**
@@ -32,6 +32,7 @@ const parseReleases = async () => {
     const releases = fs.readdirSync(pathToReleases)
 
     const parsedReleases = []
+    let unreleased = []
 
     for (let i = 0; i < releases.length; i++) {
         const release = releases[i];
@@ -63,17 +64,21 @@ const parseReleases = async () => {
                     ])
                     if (answer.confirm) {
                         console.info(`moving entries for ${entryData['version']} to unreleased`)
-                        // TODO: move entries to unreleased
                         // 1. Stage all git changes
                         // 2. Load all the incomming entries to memmory
                         // 3. Delete the invalid version folder
                         // 4. Create the entries as unreleased
                         // 5. re-run the function recursively
+                        addChanges(null, true)
                         await unreleaseVersion(path.join(pathToEntries, entry), pathToEntries)
                         return await parseReleases()
                     } else {
                         process.exit(1)
                     }
+                }
+                if (!entryData.version || !entryData.version.match(/\d{1,}\.\d{1,}\.\d{1,}/)) {
+                    console.error(`Invalid version found in ${entry}`)
+                    process.exit(1)
                 }
                 releaseInfo = entryData
             } else {
@@ -81,7 +86,12 @@ const parseReleases = async () => {
                 if (!entryData.type || !entryData.title) {
                     console.error(`Invalid entry (${entry}): missing title or type`)
                     process.exit(1)
+                } else if (!entryData.issue || isNaN(entryData.issue)) {
+                    console.error(`Entry is missing issue id (${entry})`)
+                    process.exit(1)
                 }
+
+                // Add entry to release changes
                 if (!releaseChanges[entryData.type]) releaseChanges[entryData.type] = []
                 releaseChanges[entryData.type].push(entryData)
             }
@@ -94,13 +104,20 @@ const parseReleases = async () => {
             process.exit(1)
         }
 
-        parsedReleases.push({
-            info: release == 'unreleased' ? { version: release } : releaseInfo,
-            changes: releaseChanges
-        })
+        if (release == 'unreleased') {
+            unreleased = releaseChanges
+        } else {
+            parsedReleases.push({
+                info: releaseInfo,
+                changes: releaseChanges
+            })
+        }
     }
 
-    return parsedReleases
+    return {
+        unreleased,
+        releases: parsedReleases
+    }
 }
 
 const unreleaseVersion = async (infoFile, releaseFolder) => {

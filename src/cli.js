@@ -2,6 +2,7 @@ import arg from 'arg';
 import inquirer from 'inquirer';
 import { generateEntry } from './generate-entry';
 import { prepareRelease } from './prepare-entries';
+import { releaseChangelog } from './release-entries';
 
 const commands = [
     { value: 'generate', name: 'Generate a new changelog entry' },
@@ -31,9 +32,10 @@ function parseArgumentsIntoOptions(rawArgs) {
         }
     );
     return {
+        command: args._[0],
+        version: args._[1],
         force: args['--force'] || false,
         issue: args['--issue'],
-        command: args._[0],
         type: args['--type'],
         dryRun: args['--dry-run'] || false,
         help: args['--help'] || false
@@ -73,6 +75,9 @@ export async function cli(args) {
         case ('prepare'):
             prepareRelease(options)
             break;
+        case ('release'):
+            releaseChangelog(options)
+            break
         default:
             console.error('Invalid command')
     }
