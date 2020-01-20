@@ -1,9 +1,11 @@
 import fs from 'fs'
-import path, { parse } from 'path'
+import path from 'path'
 import YAML from 'yaml'
 import { getBranchName } from './utils/git-utils'
 import { prepareRelease } from './prepare-entries'
 import inquirer from 'inquirer'
+import { compareVersions } from './utils/versions'
+import { generateChangelog } from './generate-changelog'
 
 const promptForMissingOptions = async (options) => {
     const questions = [];
@@ -89,21 +91,8 @@ export const releaseChangelog = async (options) => {
     releaseChanges(parsedReleases.unreleased, options.version, branchName)
 
     console.info('Released changelog entries successfully')
-}
 
-const compareVersions = (a, b) => {
-    const aSplit = a.split('.')
-    const bSplit = b.split('.')
-
-    if (aSplit[0] != bSplit[0]) {
-        return aSplit[0] - bSplit[0]
-    }
-    if (aSplit[1] != bSplit[1]) {
-        return aSplit[1] - bSplit[1]
-    }
-    if (aSplit[2] != bSplit[2]) {
-        return aSplit[2] - bSplit[2]
-    }
+    generateChangelog(options)
 }
 
 const releaseChanges = (unreleased, version, branchName) => {

@@ -12,17 +12,17 @@ const promptForMissingOptions = async (options) => {
 
 export const prepareRelease = async (options) => {
     options = await promptForMissingOptions(options);
-    const parsedReleases = await parseReleases()
+    const parsedReleases = await parseReleases(options)
     return parsedReleases
 }
 
 /**
  * Finds and parses the list of releases and their entries in the current directory
  */
-const parseReleases = async () => {
+const parseReleases = async (options) => {
     // Validate release branch
     const branchName = await getBranchName();
-    if (!branchName.match(/^release-\D*/)) {
+    if (!options.dryRun && !branchName.match(/^release-\D*/)) {
         console.error('The current branch is not a release branch.\nPlease make sure your branch name begins with release-')
         process.exit(1)
     }
@@ -52,9 +52,9 @@ const parseReleases = async () => {
             const entryData = YAML.parse(entryStr.toString())
             entryData.originalPath = path.join(pathToEntries, entry)
 
-            if (entry.match(/^release-\D*-\d{1,}\.\d{1,}\.\d{1,}-info\.yml/)) {
+            if (entry.match(/^release-[\D-\d]*-info\.yml/)) {
                 // TODO: validate release info data
-                if (entryData['release-branch'] != branchName) {
+                if (entryData['release-branch'] != branchName && !options.dryRun) {
                     console.info(`The version ${entryData['version']} was released on a different release branch`)
                     const answer = await inquirer.prompt([
                         {

@@ -3,11 +3,13 @@ import inquirer from 'inquirer';
 import { generateEntry } from './generate-entry';
 import { prepareRelease } from './prepare-entries';
 import { releaseChangelog } from './release-entries';
+import { generateChangelog } from './generate-changelog';
 
 const commands = [
     { value: 'generate', name: 'Generate a new changelog entry' },
     { value: 'prepare', name: 'Prepare and validate all entries (required after merging release branches together)' },
-    { value: 'release', name: 'Create a new release' }
+    { value: 'release', name: 'Create a new release and an updated CHANGELOG.md file' },
+    { value: 'create', name: 'Just create the CHANGELOG.md file' }
 ]
 
 function parseArgumentsIntoOptions(rawArgs) {
@@ -77,6 +79,9 @@ export async function cli(args) {
             break;
         case ('release'):
             releaseChangelog(options)
+            break
+        case ('create'):
+            generateChangelog(options)
             break
         default:
             console.error('Invalid command')
