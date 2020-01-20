@@ -98,12 +98,14 @@ export const generateEntry = async (options) => {
 
     const pathToEntry = path.join(pathToEntries, `RM-${options.issue}.yml`)
 
+    // TODO: check if an older entry with same redmine and title exists
+
     // Check if the entry already exists in the unreleased folder
     if (fs.existsSync(pathToEntry)) {
         if (!options.force) {
             console.error(`The following entry already exists ${pathToEntry}`)
             console.log('Use --force to replace it')
-            return
+            throw `The following entry already exists ${pathToEntry}`
         }
     }
 

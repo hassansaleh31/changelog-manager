@@ -1,11 +1,12 @@
 import arg from 'arg';
 import inquirer from 'inquirer';
 import { generateEntry } from './generate-entry';
+import { prepareRelease } from './prepare-entries';
 
 const commands = [
     { value: 'generate', name: 'Generate a new changelog entry' },
     { value: 'prepare', name: 'Prepare and validate all entries (required after merging release branches together)' },
-    { value: 'create', name: 'Create the changelog file' }
+    { value: 'release', name: 'Create a new release' }
 ]
 
 function parseArgumentsIntoOptions(rawArgs) {
@@ -68,6 +69,9 @@ export async function cli(args) {
     switch (options.command) {
         case ('generate'):
             generateEntry(options)
+            break;
+        case ('prepare'):
+            prepareRelease(options)
             break;
         default:
             console.error('Invalid command')
