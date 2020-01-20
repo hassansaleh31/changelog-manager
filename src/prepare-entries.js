@@ -50,6 +50,7 @@ const parseReleases = async () => {
             // Parse release entries
             const entryStr = fs.readFileSync(path.join(pathToEntries, entry))
             const entryData = YAML.parse(entryStr.toString())
+            entryData.originalPath = path.join(pathToEntries, entry)
 
             if (entry.match(/^release-\D*-\d{1,}\.\d{1,}\.\d{1,}-info\.yml/)) {
                 // TODO: validate release info data

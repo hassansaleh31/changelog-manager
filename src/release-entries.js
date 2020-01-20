@@ -38,16 +38,18 @@ const promptForMissingOptions = async (options) => {
 export const releaseChangelog = async (options) => {
     options = await promptForMissingOptions(options);
     const branchName = await getBranchName()
-    console.log(`Releasing changelog for version ${options.version} for ${branchName}`)
+    console.info(`Releasing changelog for version ${options.version} for ${branchName}`)
     const parsedReleases = await prepareRelease()
 
-    if (!parsedReleases.unreleased || parsedReleases.unreleased.length == 0) {
+    console.info('Checking for unreleased entries')
+    if (!parsedReleases.unreleased || Object.keys(parsedReleases.unreleased).length == 0) {
         console.error('No unreleased entries found.')
         console.info('You can generate new entries using changelog-manager generate')
         process.exit(1)
     }
 
     // Check if version already exists
+    console.info('Validating version')
     const existingVersion = parsedReleases.releases.find(release => release.info.version == options.version)
     if (existingVersion) {
         console.error(`Version ${options.version} is already released`)
@@ -65,12 +67,14 @@ export const releaseChangelog = async (options) => {
     }
 
     // Create the version folder
+    console.info('Starting the release process')
     const pathToRelease = path.join(process.cwd(), 'changelogs', options.version)
     if (!fs.existsSync(pathToRelease)) {
         fs.mkdirSync(pathToRelease, { recursive: true })
     }
 
     // Create the release info file
+    console.info('Generating release info')
     const releaseInfo = {
         version: options.version,
         // TODO: get git username
@@ -81,6 +85,7 @@ export const releaseChangelog = async (options) => {
     fs.writeFileSync(path.join(pathToRelease, `${branchName}-${options.version}-info.yml`), YAML.stringify(releaseInfo))
 
     // Move unreleased changes to release folder
+    console.info('Releasing changes')
     releaseChanges(parsedReleases.unreleased, options.version, branchName)
 
     console.info('Released changelog entries successfully')
@@ -102,12 +107,28 @@ const compareVersions = (a, b) => {
 }
 
 const releaseChanges = (unreleased, version, branchName) => {
-    for (let i = 0; i < unreleased.length; i++) {
-        const entry = unreleased[i];
-        entry['release-branch'] = branchName
+    for (let i = 0; i < Object.keys(unreleased).length; i++) {
+        const key = Object.keys(unreleased)[i];
+        const entries = unreleased[key]
 
-        const pathToEntry = path.join(process.cwd(), 'changelogs', version, `RM-${entry.issue}.yml`)
+        for (let i = 0; i < entries.length; i++) {
+            const entry = entries[i];
+            const entryName = `RM-${entry.issue}.yml`
 
-        fs.writeFileSync(pathToEntry, YAML.stringify(entry))
+            console.info(`Releasing ${entryName}`)
+
+            const pathToEntry = path.join(process.cwd(), 'changelogs', version, entryName)
+
+            fs.writeFileSync(pathToEntry, YAML.stringify({
+                title: entry.title,
+                author: entry.author,
+                issue: entry.issue,
+                type: entry.type,
+                'release-branch': branchName
+            }))
+
+            // TODO: Delete file
+            fs.unlinkSync(entry.originalPath)
+        }
     }
 }
